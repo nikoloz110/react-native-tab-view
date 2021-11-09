@@ -4,6 +4,7 @@ import Animated, {
   Easing as OldEasing,
   // @ts-ignore
   EasingNode,
+  // eslint-disable-next-line import/no-unresolved
 } from 'react-native-reanimated';
 
 import memoize from './memoize';
@@ -18,6 +19,7 @@ export type Props<T extends Route> = SceneRendererProps & {
   width: string | number;
   style?: StyleProp<ViewStyle>;
   getTabWidth: GetTabWidth;
+  backgroundStyle?: any;
 };
 
 const { multiply, Extrapolate } = Animated;
@@ -109,9 +111,10 @@ export default class TabBarIndicator<T extends Route> extends React.Component<
       width,
       style,
       layout,
+      backgroundStyle,
     } = this.props;
     const { routes } = navigationState;
-
+    //a friendly reminder
     const translateX =
       routes.length > 1 ? this.getTranslateX(position, routes, getTabWidth) : 0;
 
@@ -123,19 +126,21 @@ export default class TabBarIndicator<T extends Route> extends React.Component<
         : width;
 
     return (
-      <Animated.View
-        style={[
-          styles.indicator,
-          // If layout is not available, use `left` property for positioning the indicator
-          // This avoids rendering delay until we are able to calculate translateX
-          { width: indicatorWidth },
-          layout.width
-            ? { transform: [{ translateX }] as any }
-            : { left: `${(100 / routes.length) * navigationState.index}%` },
-          width === 'auto' ? { opacity: this.opacity } : null,
-          style,
-        ]}
-      />
+      <Animated.View style={[styles.indicatorBackground, backgroundStyle]}>
+        <Animated.View
+          style={[
+            styles.indicator,
+            // If layout is not available, use `left` property for positioning the indicator
+            // This avoids rendering delay until we are able to calculate translateX
+            { width: indicatorWidth },
+            layout.width
+              ? { transform: [{ translateX }] as any }
+              : { left: `${(100 / routes.length) * navigationState.index}%` },
+            width === 'auto' ? { opacity: this.opacity } : null,
+            style,
+          ]}
+        />
+      </Animated.View>
     );
   }
 }
@@ -143,6 +148,14 @@ export default class TabBarIndicator<T extends Route> extends React.Component<
 const styles = StyleSheet.create({
   indicator: {
     backgroundColor: '#ffeb3b',
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    right: 0,
+    height: 2,
+  },
+  indicatorBackground: {
+    backgroundColor: 'red',
     position: 'absolute',
     left: 0,
     bottom: 0,
